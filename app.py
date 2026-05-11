@@ -12,6 +12,8 @@ import edge_tts
 import gradio as gr
 import torch
 
+os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
+
 
 MODEL_ID = "Lightricks/LTX-Video-0.9.7-distilled"
 OUTPUT_DIR = Path("/content/ltx_avatar_outputs")
@@ -126,7 +128,7 @@ def merge_audio(video_path: Path, audio_path: Path, output_path: Path) -> None:
         raise gr.Error("FFmpeg failed while merging audio and video:\n" + result.stderr[-1200:])
 
 
-def generate_avatar(image, prompt, hindi_text, negative_prompt, style, seconds, fps, seed, voice, progress=gr.Progress(track_tqdm=True)):
+def generate_avatar(image, prompt, hindi_text, negative_prompt, style, seconds, fps, seed, voice, progress=gr.Progress()):
     from diffusers.pipelines.ltx.pipeline_ltx_condition import LTXVideoCondition
     from diffusers.utils import export_to_video
 
@@ -145,7 +147,7 @@ def generate_avatar(image, prompt, hindi_text, negative_prompt, style, seconds, 
     audio_path = OUTPUT_DIR / f"{job_id}_hindi.mp3"
     final_path = OUTPUT_DIR / f"{job_id}_final.mp4"
 
-    progress(0.05, desc=f"Loading LTX on {gpu_name}")
+    progress(0.05, desc=f"Loading & Downloading LTX Model on {gpu_name} (Takes 2-5 mins first time)")
     pipe = get_pipe()
     generator = torch.Generator(device="cuda").manual_seed(int(seed))
     condition = LTXVideoCondition(image=image.convert("RGB"), frame_index=0)
@@ -410,6 +412,7 @@ def build_ui():
             fn=generate_avatar,
             inputs=[image, prompt, hindi_text, negative_prompt, style, seconds, fps, seed, voice],
             outputs=[video, download, status],
+            show_progress="minimal"
         )
 
         gr.Markdown("Use fictional or consenting adult avatars only. Avoid deceptive impersonation and non-consensual content.")
@@ -419,7 +422,7 @@ def build_ui():
 
 def launch():
     demo = build_ui()
-    demo.queue(max_size=8).launch(share=True, debug=False, show_error=True)
+    demo.queue(max_size=8).launch(share=True, debug=False, show_error=True, inline=True, height=1200)
 
 
 if __name__ == "__main__":
