@@ -11,8 +11,6 @@ from pathlib import Path
 import edge_tts
 import gradio as gr
 import torch
-from diffusers.pipelines.ltx.pipeline_ltx_condition import LTXConditionPipeline, LTXVideoCondition
-from diffusers.utils import export_to_video
 
 
 MODEL_ID = "Lightricks/LTX-Video-0.9.7-distilled"
@@ -62,6 +60,8 @@ def get_pipe():
     global PIPE
     if PIPE is not None:
         return PIPE
+
+    from diffusers.pipelines.ltx.pipeline_ltx_condition import LTXConditionPipeline
 
     ensure_gpu()
     major, _minor = torch.cuda.get_device_capability(0)
@@ -127,6 +127,9 @@ def merge_audio(video_path: Path, audio_path: Path, output_path: Path) -> None:
 
 
 def generate_avatar(image, prompt, hindi_text, negative_prompt, style, seconds, fps, seed, voice, progress=gr.Progress(track_tqdm=True)):
+    from diffusers.pipelines.ltx.pipeline_ltx_condition import LTXVideoCondition
+    from diffusers.utils import export_to_video
+
     if image is None:
         raise gr.Error("Upload an avatar image first.")
     if not prompt.strip():
