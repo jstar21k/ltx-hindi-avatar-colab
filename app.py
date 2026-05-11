@@ -187,54 +187,221 @@ def generate_avatar(image, prompt, hindi_text, negative_prompt, style, seconds, 
 
 def build_ui():
     css = """
-    .gradio-container { max-width: 1180px !important; margin: auto !important; }
-    .hero {
-        padding: 22px 0 8px 0;
-        border-bottom: 1px solid rgba(255,255,255,.12);
+    :root {
+        --studio-bg: #111216;
+        --studio-panel: #1b1c21;
+        --studio-panel-2: #15161a;
+        --studio-border: rgba(255,255,255,.12);
+        --studio-text: #f4f7fb;
+        --studio-muted: #9aa3b2;
+        --studio-accent: #13c8ff;
+    }
+    body, .gradio-container {
+        background:
+            radial-gradient(circle at 50% -10%, rgba(24, 190, 210, .16), transparent 34%),
+            radial-gradient(circle at 65% 12%, rgba(155, 75, 220, .14), transparent 28%),
+            var(--studio-bg) !important;
+    }
+    .gradio-container {
+        max-width: 1240px !important;
+        margin: auto !important;
+        color: var(--studio-text) !important;
+    }
+    .studio-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 2px 10px;
+    }
+    .studio-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        background: rgba(255,255,255,.045);
+        border: 1px solid var(--studio-border);
+        border-radius: 18px;
+        box-shadow: 0 16px 40px rgba(0,0,0,.28);
+        font-weight: 700;
+    }
+    .studio-mark {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #0ce2ff, #2f7cff);
+        display: grid;
+        place-items: center;
+        color: white;
+        font-weight: 900;
+    }
+    .studio-badge {
+        border: 1px solid var(--studio-border);
+        color: var(--studio-muted);
+        padding: 9px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.035);
+        font-size: 13px;
+    }
+    .studio-hero {
+        text-align: center;
+        padding: 24px 0 28px;
+    }
+    .studio-hero h1 {
+        font-size: clamp(34px, 5vw, 56px);
+        line-height: 1.02;
+        margin: 0 0 12px;
+        letter-spacing: 0;
+        color: var(--studio-text);
+    }
+    .studio-hero p {
+        margin: 0 auto;
+        color: var(--studio-muted);
+        font-size: 16px;
+        max-width: 760px;
+    }
+    #creator_shell {
+        max-width: 980px;
+        margin: 0 auto 22px;
+        padding: 20px;
+        border-radius: 34px;
+        border: 1px solid var(--studio-border);
+        background: rgba(28,29,34,.82);
+        box-shadow: 0 26px 100px rgba(0,0,0,.34);
+    }
+    #mode_bar {
+        padding: 6px;
+        border-radius: 22px;
+        background: rgba(255,255,255,.035);
+        border: 1px solid rgba(255,255,255,.06);
         margin-bottom: 18px;
     }
-    .hero h1 { font-size: 32px; margin: 0 0 8px 0; letter-spacing: 0; }
-    .hero p { font-size: 15px; margin: 0; opacity: .78; max-width: 780px; }
-    #generate_btn button { font-weight: 700; height: 48px; }
-    #status_box textarea { font-family: ui-monospace, Consolas, monospace; }
+    #mode_bar .tab-nav {
+        background: transparent !important;
+        border: 0 !important;
+    }
+    #mode_bar button {
+        border-radius: 18px !important;
+        min-height: 44px;
+        font-weight: 700;
+    }
+    #script_box textarea, #prompt_box textarea {
+        min-height: 238px !important;
+        background: var(--studio-panel-2) !important;
+        border-radius: 22px !important;
+        border: 1px solid rgba(255,255,255,.08) !important;
+        color: var(--studio-text) !important;
+        font-size: 15px !important;
+    }
+    #prompt_box textarea { min-height: 112px !important; }
+    #image_box {
+        min-height: 334px;
+        border-radius: 24px !important;
+        border: 1px dashed rgba(255,255,255,.18) !important;
+        background: rgba(255,255,255,.025) !important;
+    }
+    #controls_row {
+        align-items: end;
+        margin-top: 14px;
+    }
+    #generate_btn button {
+        height: 52px;
+        border-radius: 999px !important;
+        background: var(--studio-accent) !important;
+        color: #061016 !important;
+        font-weight: 800;
+        border: 0 !important;
+        box-shadow: 0 16px 40px rgba(19,200,255,.24);
+    }
+    #output_shell {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 18px;
+        border-radius: 28px;
+        border: 1px solid var(--studio-border);
+        background: rgba(18,19,23,.72);
+    }
+    #status_box textarea {
+        font-family: ui-monospace, Consolas, monospace;
+        background: rgba(255,255,255,.035) !important;
+        border-radius: 16px !important;
+    }
+    footer { display: none !important; }
     """
 
     with gr.Blocks(css=css, theme=gr.themes.Soft(primary_hue="blue", neutral_hue="slate"), title="LTX Hindi Avatar Studio") as demo:
         gr.HTML(
             """
-            <div class="hero">
-              <h1>LTX Hindi Avatar Studio</h1>
-              <p>Upload an avatar image, write a motion prompt and Hindi dialogue, then generate a short video with voice.</p>
+            <div class="studio-topbar">
+              <div class="studio-brand"><div class="studio-mark">A</div><span>Avatar videos</span></div>
+              <div class="studio-badge">Photo to video with Hindi voice</div>
+            </div>
+            <div class="studio-hero">
+              <h1>One image. One prompt. A talking avatar video.</h1>
+              <p>Upload a face image, write the Hindi script and motion prompt, then generate a short video with voice.</p>
             </div>
             """
         )
 
-        with gr.Row(equal_height=False):
-            with gr.Column(scale=5, min_width=360):
-                image = gr.Image(label="Avatar image", type="pil", height=330)
-                prompt = gr.Textbox(label="Video prompt", value=DEFAULT_PROMPT, lines=5)
-                hindi_text = gr.Textbox(label="Hindi dialogue", value=DEFAULT_HINDI, lines=4)
+        with gr.Group(elem_id="creator_shell"):
+            with gr.Tabs(elem_id="mode_bar"):
+                with gr.Tab("Photo to video"):
+                    with gr.Row(equal_height=True):
+                        with gr.Column(scale=5, min_width=340):
+                            hindi_text = gr.Textbox(
+                                label="Hindi script",
+                                value=DEFAULT_HINDI,
+                                placeholder="Type or paste Hindi dialogue here...",
+                                lines=9,
+                                elem_id="script_box",
+                            )
+                        with gr.Column(scale=6, min_width=360):
+                            image = gr.Image(
+                                label="Upload photo",
+                                type="pil",
+                                height=334,
+                                elem_id="image_box",
+                            )
 
-                with gr.Accordion("Advanced settings", open=False):
-                    negative_prompt = gr.Textbox(label="Negative prompt", value=DEFAULT_NEGATIVE, lines=3)
-                    with gr.Row():
-                        style = gr.Dropdown(["Vertical 9:16", "Wide 16:9", "Square"], value="Vertical 9:16", label="Format")
+                    prompt = gr.Textbox(
+                        label="Motion prompt",
+                        value=DEFAULT_PROMPT,
+                        placeholder="Describe the avatar movement, camera, expression, lighting...",
+                        lines=3,
+                        elem_id="prompt_box",
+                    )
+
+                    with gr.Row(elem_id="controls_row"):
                         voice = gr.Dropdown(
                             ["hi-IN-SwaraNeural", "hi-IN-MadhurNeural"],
                             value="hi-IN-SwaraNeural",
-                            label="Hindi voice",
+                            label="Voice",
+                            scale=2,
                         )
-                    with gr.Row():
-                        seconds = gr.Slider(5, 15, value=5, step=1, label="Duration")
-                        fps = gr.Slider(16, 24, value=24, step=1, label="FPS")
+                        style = gr.Dropdown(
+                            ["Vertical 9:16", "Wide 16:9", "Square"],
+                            value="Vertical 9:16",
+                            label="Format",
+                            scale=2,
+                        )
+                        seconds = gr.Slider(5, 15, value=5, step=1, label="Seconds", scale=3)
+                        fps = gr.Slider(16, 24, value=24, step=1, label="FPS", scale=2)
+                        generate_btn = gr.Button("Generate", variant="primary", scale=2, elem_id="generate_btn")
+
+                    with gr.Accordion("Advanced", open=False):
                         seed = gr.Number(value=12345, precision=0, label="Seed")
+                        negative_prompt = gr.Textbox(label="Negative prompt", value=DEFAULT_NEGATIVE, lines=3)
 
-                generate_btn = gr.Button("Generate Video", variant="primary", elem_id="generate_btn")
+                with gr.Tab("Script to video"):
+                    gr.Markdown("Script-to-video mode is not enabled yet. Use Photo to video for this notebook.")
 
-            with gr.Column(scale=6, min_width=420):
-                video = gr.Video(label="Preview")
-                download = gr.File(label="Download MP4")
-                status = gr.Textbox(label="Status", lines=3, elem_id="status_box")
+        with gr.Group(elem_id="output_shell"):
+            with gr.Row(equal_height=False):
+                with gr.Column(scale=7):
+                    video = gr.Video(label="Preview")
+                with gr.Column(scale=4):
+                    download = gr.File(label="Download MP4")
+                    status = gr.Textbox(label="Status", lines=5, elem_id="status_box")
 
         generate_btn.click(
             fn=generate_avatar,
@@ -242,9 +409,7 @@ def build_ui():
             outputs=[video, download, status],
         )
 
-        gr.Markdown(
-            "Use fictional or consenting adult avatars only. Avoid deceptive impersonation and non-consensual content."
-        )
+        gr.Markdown("Use fictional or consenting adult avatars only. Avoid deceptive impersonation and non-consensual content.")
 
     return demo
 
