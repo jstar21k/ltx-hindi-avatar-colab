@@ -12,8 +12,6 @@ import edge_tts
 import gradio as gr
 import torch
 
-os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
-
 
 MODEL_ID = "Lightricks/LTX-Video-0.9.7-distilled"
 OUTPUT_DIR = Path("/content/ltx_avatar_outputs")
@@ -128,7 +126,7 @@ def merge_audio(video_path: Path, audio_path: Path, output_path: Path) -> None:
         raise gr.Error("FFmpeg failed while merging audio and video:\n" + result.stderr[-1200:])
 
 
-def generate_avatar(image, prompt, hindi_text, negative_prompt, style, seconds, fps, seed, voice, progress=gr.Progress()):
+def generate_avatar(image, prompt, hindi_text, negative_prompt, style, seconds, fps, seed, voice, progress=gr.Progress(track_tqdm=True)):
     from diffusers.pipelines.ltx.pipeline_ltx_condition import LTXVideoCondition
     from diffusers.utils import export_to_video
 
